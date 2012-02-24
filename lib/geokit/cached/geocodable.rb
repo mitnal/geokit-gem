@@ -22,7 +22,7 @@ module Geokit
 
       def geocode_address_cached
         @geo = multi_geocoder.geocode(complete_address)
-        self.lat, self.lng, self.provider, self.city = @geo.lat, @geo.lng, @geo.provider, @geo.city if @geo.success
+        self.lat, self.lng, self.provider = @geo.lat, @geo.lng, @geo.provider if @geo.success
       end
 
       def cache_locations?
@@ -34,7 +34,7 @@ module Geokit
       end
 
       def cache_location!
-        cached_location.cache!(:lat => lat, :lng => lng, :provider => provider, :city => city) if cache_locations?
+        cached_location.cache!(:lat => lat, :lng => lng, :provider => provider) if cache_locations?
       end
 
     end
