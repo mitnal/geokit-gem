@@ -27,7 +27,7 @@ module Geokit
       # replacement for Net::HTTP request calls.
       # 
       def do_cache_request(url, max_age=0, &block)
-        file = MD5.hexdigest(url)
+        file = Digest::MD5.hexdigest(url)
         file_path = File.join(@cache_dir, file)
         file_contents = ""
         # Check if the file -- a MD5 hexdigest of the URL -- exists
