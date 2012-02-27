@@ -141,7 +141,6 @@ module Geokit
                 GeoKit::Geocoders::proxy_port,
                 GeoKit::Geocoders::proxy_user,
                 GeoKit::Geocoders::proxy_pass).start(uri.host, uri.port) { |http| http.get(uri.path + "?" + uri.query) }
-        return res
       end
       
       # Performs the Net::HTTP GET operation on the URL.  Uses the 
