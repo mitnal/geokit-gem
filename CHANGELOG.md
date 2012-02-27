@@ -1,34 +1,31 @@
-=== 1.3.2.10 /2009-12-10
-* Merge changes from staszek/geokit-gem (Turned on reading from cached location model for no-google providers)
+=== 1.6.5 / 2012-01-23
 
-=== 1.3.2.9 / 2009-06-03
-* Merge changes from staszek/geokit-gem
-* remove unnecessary file that came from mentioned upstream
+* first release by @imajes, thanks @andre for all the hard work!
+* normalized whitespace
+* added support for subpremise on google3 encoder
+* fixed yahoo's support by switching to placefinder
+* switched to multi json for agnostic json support
+* removed hoe and replaced with bundler's gem harness
 
-=== 1.3.2.8 / 2009-06-03
-* Add changes from staszek/geokit-gem
+=== 1.6.0 / 2011-05-27
 
-=== 1.3.2.7 / 2009-06-03
-* Added more strict requirements for model
+* added Google geocoder3 support (thanks @projectdx)
+* added FCC encoder support (thanks @paulschreiber)
+* various minor fixes.
 
-=== 1.3.2.6 / 2009-06-03
-* Added possibility to cache lat and lng stored in another tables (useful when migrating)
-* Validates presence of :address in CachedLocation model
+=== 1.5.0 / 2009-09-21
+* fixed jruby compatibility (thanks manalang)
+* added country name to Google reverse geocoder (thanks joahking)
+* added  DependentLocalityName as district, and SubAdministrativeAreaName as province (google geocoder only)
+* Google geocoder throws an error if you exceed geocoding rates (thanks drogus)
 
-=== 1.3.2.5 / 2009-06-03
-* Fixed failed geocode request treaten as successful
+=== 1.4.1 / 2009-06-15
+* Fixed Ruby 1.9.1 compat and load order (thanks Niels Ganser)
 
-=== 1.3.2.4 / 2009-06-03
-* Changed naming of one method to be precise
-
-=== 1.3.2.3 / 2009-06-03
-* Description change
-
-=== 1.3.2.2 / 2009-06-03
-* Fixes
-
-=== 1.3.2.1 / 2009-06-03
-* Added caching in ActiveRecord model
+=== 1.4.0 / 2009-05-27
+* Added country code/viewport biasing to GoogleGeocoder. Added Bounds#to_span method
+* Added suggested_bounds (Geokit::Bounds) property to GeoLoc. (Google geocoder only)
+* Added LatLng#reverse_geocode convenience method (thanks Tisho Georgiev for all three)
 
 === 1.3.2 / 2009-05-27
 * Fixed blank address geocoding bug

@@ -1,4 +1,3 @@
-.project
 History.txt
 Manifest.txt
 README.markdown
@@ -20,10 +19,3 @@ test/test_latlng.rb
 test/test_multi_geocoder.rb
 test/test_us_geocoder.rb
 test/test_yahoo_geocoder.rb
-generators/geokit_cached/geokit_cached_generator.rb
-generators/geokit_cached/templates/model.rb
-generators/geokit_cached/templates/model_spec.rb
-lib/geokit/cached.rb
-lib/geokit/cached/geocodable.rb
-lib/geokit/cached/model.rb
-lib/geokit/geocoders/cached_multi_geocoder.rb
