@@ -48,7 +48,9 @@ module Geokit
     @@logger=Logger.new(STDOUT)
     @@logger.level=Logger::INFO
     @@domain = nil
-
+    @@query_cache = false
+    @@query_cache_max_age = 86400
+    
     def self.__define_accessors
       class_variables.each do |v|
         sym = v.to_s.delete("@").to_sym
@@ -121,11 +123,17 @@ module Geokit
       def self.logger()
         Geokit::Geocoders::logger
       end
+      
+      def self.query_cache
+        @_query_cacher ||= Geokit::QueryCache::DiskFetcher.new
+      end
 
       private
 
       # Wraps the geocoder call around a proxy if necessary.
-      def self.do_get(url)
+      # 
+      # Returns a Net::HTTP result object.
+      def self.do_http_get(url) 
         uri = URI.parse(url)
         req = Net::HTTP::Get.new(url)
         req.basic_auth(uri.user, uri.password) if uri.userinfo
@@ -134,6 +142,18 @@ module Geokit
                 GeoKit::Geocoders::proxy_user,
                 GeoKit::Geocoders::proxy_pass).start(uri.host, uri.port) { |http| http.get(uri.path + "?" + uri.query) }
         return res
+      end
+      
+      # Performs the Net::HTTP GET operation on the URL.  Uses the 
+      # Geokit::Geocoders::query_cache if specified.
+      # 
+      def self.do_get(url) 
+        if GeoKit::Geocoders::query_cache
+          max_age = GeoKit::Geocoders::query_cache_max_age || 86400
+          self.query_cache.do_cache_request(url, max_age) { self.do_http_get(url) }
+        else
+          self.do_http_get(url)
+        end
       end
 
       # Adds subclass' geocode method making it conveniently available through
