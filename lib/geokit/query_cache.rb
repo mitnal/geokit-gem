@@ -35,6 +35,7 @@ module Geokit
         # data from the file and return
         if File.exists? file_path
           if Time.now - File.mtime(file_path) < max_age
+            Geokit::Geocoders::logger.info "Geokit: read cache '#{file_path}'"
             data = File.new(file_path).read
             return Marshal.load(data)
           end
@@ -42,8 +43,10 @@ module Geokit
         # If the file does not exist (or if the data is not fresh), 
         # make an HTTP request and save it to a file
         File.open(file_path, "w") do |data|
+          Geokit::Geocoders::logger.info "Geokit: write cache '#{file_path}'"
           file_contents = block.call() if block_given?
-          data << Marshal.dump(file_contents)
+          marshaled_data = Marshal.dump(file_contents).encode!('UTF-8', 'UTF-8', :invalid => :replace)
+          data << marshaled_data
         end
         return file_contents
       end
