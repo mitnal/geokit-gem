@@ -179,5 +179,6 @@ module Geokit
         return encoded
       end
     end
+    Google3Geocoder = GoogleGeocoder3
   end
 end
