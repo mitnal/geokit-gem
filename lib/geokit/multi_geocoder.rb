@@ -25,13 +25,32 @@ module Geokit
       def self.do_geocode(address, options = {})
         geocode_ip = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})$/.match(address)
         provider_order = geocode_ip ? Geokit::Geocoders::ip_provider_order : Geokit::Geocoders::provider_order
-
+        
+        counter = 0
         provider_order.each do |provider|
           begin
             klass = Geokit::Geocoders.const_get "#{Geokit::Inflector::camelize(provider.to_s)}Geocoder"
             res = klass.send :geocode, address, options
+            counter = 0
             return res if res.success?
+          rescue Geokit::TooManyQueriesError
+            # remove cached file
+            if GeoKit::Geocoders::query_cache
+              self.query_cache.remove_cache_url(klass.try(:get_geocode_url, address, options))
+            end
+            if counter < 3
+              counter += 1
+              logger.info("Sleeping #{counter * 0.2} seconds.")
+              sleep(counter * 0.2)
+              retry
+            else
+              logger.error("Something has gone very wrong during geocoding, OR you have configured an invalid class name in Geokit::Geocoders::provider_order. Address: #{address}. Provider: #{provider}")
+            end
           rescue
+            # remove cached file
+            if GeoKit::Geocoders::query_cache
+              self.query_cache.remove_cache_url(klass.try(:get_geocode_url, address, options))
+            end
             logger.error("Something has gone very wrong during geocoding, OR you have configured an invalid class name in Geokit::Geocoders::provider_order. Address: #{address}. Provider: #{provider}")
           end
         end
@@ -49,6 +68,10 @@ module Geokit
             res = klass.send :reverse_geocode, latlng
             return res if res.success?
           rescue
+            # remove cached file
+            if GeoKit::Geocoders::query_cache
+              self.query_cache.remove_cache_url(klass.try(:get_reverse_geocode_url, latlng))
+            end
             logger.error("Something has gone very wrong during reverse geocoding, OR you have configured an invalid class name in Geokit::Geocoders::provider_order. LatLng: #{latlng}. Provider: #{provider}")
           end
         end

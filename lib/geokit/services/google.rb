@@ -20,6 +20,11 @@ module Geokit
         logger.debug "Google reverse-geocoding. LL: #{latlng}. Result: #{xml}"
         return self.xml2GeoLoc(xml)
       end
+      
+      def self.get_reverse_geocode_url(latlng)
+        latlng=LatLng.normalize(latlng)
+        "http://maps.google.com/maps/geo?ll=#{Geokit::Inflector::url_escape(latlng.ll)}&output=xml&key=#{Geokit::Geocoders::google}&oe=utf-8"
+      end
 
       # Template method which does the geocode lookup.
       #
@@ -54,6 +59,12 @@ module Geokit
         xml = res.body
         logger.debug "Google geocoding. Address: #{address}. Result: #{xml}"
         return self.xml2GeoLoc(xml, address)
+      end
+      
+      def self.get_geocode_url(address, options = {})
+        bias_str = options[:bias] ? construct_bias_string_from_options(options[:bias]) : ''
+        address_str = address.is_a?(GeoLoc) ? address.to_geocodeable_s : address
+        return "http://maps.google.com/maps/geo?q=#{Geokit::Inflector::url_escape(address_str)}&output=xml#{bias_str}&key=#{Geokit::Geocoders::google}&oe=utf-8"
       end
 
       def self.construct_bias_string_from_options(bias)

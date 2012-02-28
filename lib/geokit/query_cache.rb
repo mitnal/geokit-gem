@@ -17,7 +17,24 @@ module Geokit
       # Create a new DiskFetcher object.  Default +cache_dir+ is /tmp.
       # 
       def initialize(cache_dir='/tmp')
-        @cache_dir = cache_dir
+        if File.exists?(cache_dir) && File.directory?(cache_dir)
+          @cache_dir = cache_dir
+        else
+          Dir.mkdir(cache_dir)
+          @cache_dir = cache_dir
+        end
+      end
+
+
+      # Remove cache url
+      def remove_cache_url(url)
+        return unless url
+        
+        file = Digest::MD5.hexdigest(url)
+        file_path = File.join(@cache_dir, file)
+        if File.exists? file_path
+          File.delete file_path
+        end
       end
 
       # Caches the requested +url+ using the Net::HTTP library. Uses the 
@@ -35,7 +52,7 @@ module Geokit
         # data from the file and return
         if File.exists? file_path
           if Time.now - File.mtime(file_path) < max_age
-            Geokit::Geocoders::logger.info "Geokit: read cache '#{file_path}'"
+            Geokit::Geocoders::logger.info "Geokit Caching: read cache '#{file_path}'"
             data = File.new(file_path).read
             return Marshal.load(data)
           end
@@ -43,7 +60,7 @@ module Geokit
         # If the file does not exist (or if the data is not fresh), 
         # make an HTTP request and save it to a file
         File.open(file_path, "w") do |data|
-          Geokit::Geocoders::logger.info "Geokit: write cache '#{file_path}'"
+          Geokit::Geocoders::logger.info "Geokit Caching: write cache '#{file_path}'"
           file_contents = block.call() if block_given?
           marshaled_data = Marshal.dump(file_contents).encode!('UTF-8', 'UTF-8', :invalid => :replace)
           data << marshaled_data

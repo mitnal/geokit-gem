@@ -126,7 +126,14 @@ module Geokit
       end
       
       def self.query_cache
-        @_query_cacher ||= Geokit::QueryCache::DiskFetcher.new(@@query_cache_dir)
+        begin
+          @_query_cacher ||= Geokit::QueryCache::DiskFetcher.new(@@query_cache_dir)
+        rescue
+          logger.error "Geokit Caching: invalid directory '#{@@query_cache_dir}'"
+          logger.error "Geokit Caching: disabled"
+          @@query_cache = false
+          return nil
+        end
       end
 
       private
@@ -134,7 +141,7 @@ module Geokit
       # Wraps the geocoder call around a proxy if necessary.
       # 
       # Returns a Net::HTTP result object.
-      def self.do_http_get(url) 
+      def self.do_http_get(url)
         uri = URI.parse(url)
         req = Net::HTTP::Get.new(url)
         req.basic_auth(uri.user, uri.password) if uri.userinfo
@@ -147,8 +154,8 @@ module Geokit
       # Performs the Net::HTTP GET operation on the URL.  Uses the 
       # Geokit::Geocoders::query_cache if specified.
       # 
-      def self.do_get(url) 
-        if GeoKit::Geocoders::query_cache
+      def self.do_get(url)
+        if GeoKit::Geocoders::query_cache && self.query_cache
           max_age = GeoKit::Geocoders::query_cache_max_age || 86400
           self.query_cache.do_cache_request(url, max_age) { self.do_http_get(url) }
         else
