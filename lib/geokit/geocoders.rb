@@ -50,6 +50,7 @@ module Geokit
     @@domain = nil
     @@query_cache = false
     @@query_cache_max_age = 86400
+    @@query_cache_dir = '/tmp'
     
     def self.__define_accessors
       class_variables.each do |v|
@@ -125,7 +126,7 @@ module Geokit
       end
       
       def self.query_cache
-        @_query_cacher ||= Geokit::QueryCache::DiskFetcher.new
+        @_query_cacher ||= Geokit::QueryCache::DiskFetcher.new(@@query_cache_dir)
       end
 
       private
