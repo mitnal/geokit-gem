@@ -40,7 +40,7 @@ module Geokit
             end
             if counter < 3
               counter += 1
-              logger.info("Sleeping #{counter * 0.2} seconds.")
+              logger.debug("Sleeping #{counter * 0.2} seconds.")
               sleep(counter * 0.2)
               retry
             else

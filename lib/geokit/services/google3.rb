@@ -6,7 +6,7 @@ module Geokit
       # Template method which does the reverse-geocode lookup.
       def self.do_reverse_geocode(latlng)
         latlng=LatLng.normalize(latlng)
-        res = self.call_geocoder_service("http://maps.google.com/maps/api/geocode/json?sensor=false&latlng=#{Geokit::Inflector::url_escape(latlng.ll)}")
+        res = self.call_geocoder_service(self.get_reverse_geocode_url(latlng))
         return GeoLoc.new unless (res.is_a?(Net::HTTPSuccess) || res.is_a?(Net::HTTPOK))
         json = res.body
         logger.debug "Google reverse-geocoding. LL: #{latlng}. Result: #{json}"
@@ -15,7 +15,12 @@ module Geokit
       
       def self.get_reverse_geocode_url(latlng)
         latlng=LatLng.normalize(latlng)
-        return "http://maps.google.com/maps/api/geocode/json?sensor=false&latlng=#{Geokit::Inflector::url_escape(latlng.ll)}"
+        language = I18n.locale.to_s if I18n.try(:locale)
+        if language
+          return "http://maps.google.com/maps/api/geocode/json?sensor=false&language=#{language}&latlng=#{Geokit::Inflector::url_escape(latlng.ll)}"
+        else
+          return "http://maps.google.com/maps/api/geocode/json?sensor=false&latlng=#{Geokit::Inflector::url_escape(latlng.ll)}"
+        end
       end
       
 
@@ -45,10 +50,7 @@ module Geokit
       # bounds = Geokit::Bounds.normalize([34.074081, -118.694401], [34.321129, -118.399487])
       # Geokit::Geocoders::GoogleGeocoder.geocode('Winnetka', :bias => bounds).state # => 'CA'
       def self.do_geocode(address, options = {})
-        bias_str = options[:bias] ? construct_bias_string_from_options(options[:bias]) : ''
-        address_str = address.is_a?(GeoLoc) ? address.to_geocodeable_s : address
-
-        res = self.call_geocoder_service("http://maps.google.com/maps/api/geocode/json?sensor=false&address=#{Geokit::Inflector::url_escape(address_str)}#{bias_str}")
+        res = self.call_geocoder_service(self.get_geocode_url(address, options))
         return GeoLoc.new if !res.is_a?(Net::HTTPSuccess)
 
         json = res.body
@@ -60,8 +62,13 @@ module Geokit
       def self.get_geocode_url(address, options = {})
         bias_str = options[:bias] ? construct_bias_string_from_options(options[:bias]) : ''
         address_str = address.is_a?(GeoLoc) ? address.to_geocodeable_s : address
-
-        return "http://maps.google.com/maps/api/geocode/json?sensor=false&address=#{Geokit::Inflector::url_escape(address_str)}#{bias_str}"
+        language = I18n.locale.to_s if I18n.try(:locale)
+        
+        if language
+          return "http://maps.google.com/maps/api/geocode/json?sensor=false&language=#{language}&address=#{Geokit::Inflector::url_escape(address_str)}#{bias_str}"
+        else
+          return "http://maps.google.com/maps/api/geocode/json?sensor=false&address=#{Geokit::Inflector::url_escape(address_str)}#{bias_str}"
+        end
       end
       
 
@@ -86,7 +93,7 @@ module Geokit
           return GeoLoc.new
         end
         # this should probably be smarter.
-        if !results['status'] == 'OK'
+        if results['status'] != 'OK'
           raise Geokit::Geocoders::GeocodeError
         end
         # location_type stores additional data about the specified location.
@@ -173,7 +180,9 @@ module Geokit
           @unsorted << res
         end
 
-        all = @unsorted.sort_by { |a| a.accuracy }.reverse
+        # do not sort results, google does this already (hopefully)
+        # all = @unsorted.sort_by { |a| a.accuracy }.reverse
+        all = @unsorted
         encoded = all.first
         encoded.all = all
         return encoded
