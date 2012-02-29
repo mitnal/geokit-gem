@@ -54,7 +54,7 @@ module Geokit
         return GeoLoc.new if !res.is_a?(Net::HTTPSuccess)
 
         json = res.body
-        logger.debug "Google geocoding. Address: #{address}. Result: #{json}"
+        logger.debug "Google geocoding. Address: #{address}. Result: #{json.encode('UTF-8', 'UTF-8', :invalid => :replace)}"
 
         return self.json2GeoLoc(json, address)
       end
@@ -92,6 +92,7 @@ module Geokit
         if results['status'] == 'ZERO_RESULTS'
           return GeoLoc.new
         end
+        
         # this should probably be smarter.
         if results['status'] != 'OK'
           raise Geokit::Geocoders::GeocodeError
