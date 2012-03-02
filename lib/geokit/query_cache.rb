@@ -63,7 +63,11 @@ module Geokit
         File.open(file_path, "w") do |data|
           Geokit::Geocoders::logger.debug "Geokit Caching: write cache '#{file_path}'"
           file_contents = block.call() if block_given?
-          marshaled_data = Marshal.dump(file_contents).encode!('UTF-8', 'UTF-8', :invalid => :replace)
+          # Encoding defaults to UTF-8 for geo_plugin xml responses.
+          data_encoding = file_contents.try(:type_params).try(:[], 'charset') || 'UTF-8'       
+          file_contents.body.encode!('UTF-8', data_encoding, :invalid => :replace) # Set body content type
+          
+          marshaled_data = Marshal.dump(file_contents).encode!('UTF-8', 'UTF-8', :invalid => :replace) # force utf8 encoding of marshaled string
           data << marshaled_data
         end
         return file_contents

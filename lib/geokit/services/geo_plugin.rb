@@ -6,12 +6,17 @@ module Geokit
 
       def self.do_geocode(ip, options = {})
         return GeoLoc.new unless /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})?$/.match(ip)
-        response = self.call_geocoder_service("http://www.geoplugin.net/xml.gp?ip=#{ip}")
+        response = self.call_geocoder_service(self.get_geocode_url(ip, options))
         return response.is_a?(Net::HTTPSuccess) ? parse_xml(response.body) : GeoLoc.new
       rescue
         logger.error "Caught an error during GeoPluginGeocoder geocoding call: "+$!
         return GeoLoc.new
       end
+      
+      def self.get_geocode_url(ip, options = {})
+        return "http://www.geoplugin.net/xml.gp?ip=#{ip}"
+      end
+      
 
       def self.parse_xml(xml)
         xml = REXML::Document.new(xml)

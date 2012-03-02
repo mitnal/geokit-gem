@@ -34,12 +34,16 @@ module Geokit
       def self.do_geocode(ip, options = {})
         return GeoLoc.new unless /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})?$/.match(ip)
         return GeoLoc.new if self.private_ip_address?(ip)
-        url = "http://api.hostip.info/get_html.php?ip=#{ip}&position=true"
+        url = self.get_geocode_url(ip, options)
         response = self.call_geocoder_service(url)
         response.is_a?(Net::HTTPSuccess) ? parse_body(response.body) : GeoLoc.new
       rescue
         logger.error "Caught an error during HostIp geocoding call: "+$!
         return GeoLoc.new
+      end
+      
+      def self.get_geocode_url(ip, options = {})
+        return "http://api.hostip.info/get_html.php?ip=#{ip}&position=true"
       end
 
       # Converts the body to YAML since its in the form of:
