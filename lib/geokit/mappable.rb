@@ -46,6 +46,8 @@ module Geokit
                 Math.acos( Math.sin(deg2rad(from.lat)) * Math.sin(deg2rad(to.lat)) +
                 Math.cos(deg2rad(from.lat)) * Math.cos(deg2rad(to.lat)) *
                 Math.cos(deg2rad(to.lng) - deg2rad(from.lng)))
+          rescue Math::DomainError
+            0.0
           rescue Errno::EDOM
             0.0
           end
