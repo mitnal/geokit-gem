@@ -18,6 +18,7 @@ module Geokit
         end
         return "http://query.yahooapis.com/v1/public/yql?q=#{Geokit::Inflector::url_escape(yql)}&format=json"
       end
+      alias get_url get_geocode_url
 
       def self.do_reverse_geocode(latlng)
         res = self.call_geocoder_service(self.get_url(latlng, :reverse => true))
