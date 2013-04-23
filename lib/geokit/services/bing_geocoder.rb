@@ -53,22 +53,22 @@ module Geokit
         res.country         = doc.elements['.//CountryRegion'].text    if doc.elements['.//CountryRegion']
         if doc.elements['.//Confidence']
           res.accuracy      = case doc.elements['.//Confidence'].text
-          when 'High'    : 8
-          when 'Medium'  : 5
-          when 'Low'     : 2
+          when 'High'    then 8
+          when 'Medium'  then 5
+          when 'Low'     then 2
           else             0
           end
         end
         if doc.elements['.//EntityType']
           res.precision     = case doc.elements['.//EntityType'].text
-          when 'Sovereign'      : 'country'
-          when 'AdminDivision1' : 'state'
-          when 'AdminDivision2' : 'state'
-          when 'PopulatedPlace' : 'city'
-          when 'Postcode1'      : 'zip'
-          when 'Postcode2'      : 'zip'
-          when 'RoadBlock'      : 'street'
-          when 'Address'        : 'address'
+          when 'Sovereign'      then 'country'
+          when 'AdminDivision1' then 'state'
+          when 'AdminDivision2' then 'state'
+          when 'PopulatedPlace' then 'city'
+          when 'Postcode1'      then 'zip'
+          when 'Postcode2'      then 'zip'
+          when 'RoadBlock'      then 'street'
+          when 'Address'        then 'address'
           else                    'unkown'
           end
         end
