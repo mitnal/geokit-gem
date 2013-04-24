@@ -6,10 +6,14 @@ module Geokit
 
       private
 
+      def self.get_geocode_url(address, options = {})
+        address_str = address.is_a?(GeoLoc) ? address.to_geocodeable_s : address
+        "http://dev.virtualearth.net/REST/v1/Locations/#{URI.escape(address_str)}?key=#{Geokit::Geocoders::BING}&o=xml"
+      end
+
       # Template method which does the geocode lookup.
       def self.do_geocode(address, options = {})
-        address_str = address.is_a?(GeoLoc) ? address.to_geocodeable_s : address
-        url="http://dev.virtualearth.net/REST/v1/Locations/#{URI.escape(address_str)}?key=#{Geokit::Geocoders::bing}&o=xml"
+        url = get_geocode_url(address, options)
         res = self.call_geocoder_service(url)
         return GeoLoc.new if !res.is_a?(Net::HTTPSuccess)
         xml = res.body
