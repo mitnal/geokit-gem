@@ -18,7 +18,9 @@ module Geokit
         end
         return "http://query.yahooapis.com/v1/public/yql?q=#{Geokit::Inflector::url_escape(yql)}&format=json"
       end
-      alias get_url get_geocode_url
+      class << self
+        alias_method :get_geocode_url, :get_url
+      end
 
       def self.do_reverse_geocode(latlng)
         res = self.call_geocoder_service(self.get_url(latlng, :reverse => true))
@@ -33,7 +35,7 @@ module Geokit
 
       def self.do_geocode(address, options={})
         address_str = address.is_a?(GeoLoc) ? address.to_geocodeable_s : address
-        res = self.call_geocoder_service(self.get_url(normalize_address(address), options))
+        res = self.call_geocoder_service(self.get_url(address, options))
         return GeoLoc.new if !res.is_a?(Net::HTTPSuccess)
         logger.debug "Yahoo PlaceFinder geocoding. Address: #{address}. Result: #{res}"
 
@@ -49,11 +51,7 @@ module Geokit
       end
 
       def self.parse_body(res)
-        # if res.is_a?(String)
-        #   body = Yajl::Parser.parse(res)
-        # else
-          body = Yajl::Parser.parse(res.body)
-        # end
+        body = MultiJson.decode(res.body)
 
         count = body['query']['count']
         if (count == 1)
