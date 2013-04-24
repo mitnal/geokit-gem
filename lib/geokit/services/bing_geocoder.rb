@@ -8,7 +8,7 @@ module Geokit
 
       def self.get_geocode_url(address, options = {})
         address_str = address.is_a?(GeoLoc) ? address.to_geocodeable_s : address
-        "http://dev.virtualearth.net/REST/v1/Locations/#{URI.escape(address_str)}?key=#{Geokit::Geocoders::BING}&o=xml"
+        "http://dev.virtualearth.net/REST/v1/Locations/#{URI.escape(address_str)}?key=#{Geokit::Geocoders::BING}&c=de&o=xml"
       end
 
       # Template method which does the geocode lookup.
