@@ -48,12 +48,7 @@ module Geokit
         res.provider        = 'bing'
         res.lat             = doc.elements['.//Latitude'].text         if doc.elements['.//Latitude']
         res.lng             = doc.elements['.//Longitude'].text        if doc.elements['.//Longitude']
-        # Fix for Germany, where often the locality is really sublocality so fallback to AdminDistrict2
-        if doc.elements['.//AdminDistrict2']
-          res.city = doc.elements['.//AdminDistrict2'].text
-        elsif doc.elements['.//Locality']
-          res.city = doc.elements['.//Locality'].text
-        end
+        res.city            = doc.elements['.//Locality'].text         if doc.elements['.//Locality']
         res.state           = doc.elements['.//AdminDistrict'].text    if doc.elements['.//AdminDistrict']
         res.province        = doc.elements['.//AdminDistrict2'].text   if doc.elements['.//AdminDistrict2']
         res.full_address    = doc.elements['.//FormattedAddress'].text if doc.elements['.//FormattedAddress']
